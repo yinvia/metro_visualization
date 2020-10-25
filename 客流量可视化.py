@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 #导入需要用到的库
@@ -22,7 +22,7 @@ from folium.plugins import HeatMap
 import re
 
 
-# In[ ]:
+# In[2]:
 
 
 #日期与时间
@@ -31,7 +31,7 @@ from datetime import datetime
 from datetime import date
 
 
-# In[ ]:
+# In[3]:
 
 
 #？导入训练集和测试集？
@@ -43,7 +43,7 @@ from sklearn.metrics import log_loss, roc_auc_score, auc, roc_curve
 from sklearn.preprocessing import MinMaxScaler
 
 
-# In[ ]:
+# In[4]:
 
 
 #作图用
@@ -54,7 +54,7 @@ plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
 
 
-# In[ ]:
+# In[5]:
 
 
 #导入数据
@@ -62,7 +62,7 @@ with open('C:/Users/ASUS/Desktop/o2odata/subway_data.csv','r',encoding="utf-8") 
     subway=pd.read_csv(a)
 
 
-# In[ ]:
+# In[6]:
 
 
 #导入地铁站经纬度数据
@@ -71,7 +71,7 @@ with open(r'C:\Users\ASUS\Desktop\o2odata\python\data_poi_shen-zhen-shi-di-tie-x
 jingwei
 
 
-# In[ ]:
+# In[7]:
 
 
 #改格式
@@ -81,7 +81,7 @@ subway.dropna()
 metro=subway
 
 
-# In[ ]:
+# In[8]:
 
 
 #时间切片
@@ -92,7 +92,7 @@ metro['period']=metro['date_hour']*6+metro['date_min_interval']
 metro
 
 
-# In[ ]:
+# In[9]:
 
 
 #删除无效数据
@@ -101,7 +101,7 @@ metro=metro[(metro['period']>=36)&(metro['period']<=68)]
 metro=metro[metro.station.notnull()]
 
 
-# In[ ]:
+# In[10]:
 
 
 metro=metro[~metro['station'].str.contains('1')]
@@ -117,14 +117,14 @@ metro=metro[~metro['station'].str.contains('0')]
 metro=metro[~metro['station'].str.contains('归属未知')]
 
 
-# In[ ]:
+# In[11]:
 
 
 metro['station']=metro['station'].str.replace('站','')
 metro
 
 
-# In[ ]:
+# In[12]:
 
 
 #提取地铁入站数据
@@ -138,7 +138,7 @@ company_out=metro_out['company_name'].unique()
 deal_type_out=metro_out['deal_type'].unique()
 y_out=metro_out.groupby(by='company_name')['card_no'].count()
 
-# 使用fivethirtyeight这个超漂亮的风格
+# 使用fivethirtyeight这个风格
 plt.style.use("fivethirtyeight")
 plt.barh(company_in,y_in,color="#87CEFA",label='入站')
 plt.barh(company_out,-y_out,color='orange',label='出站')
@@ -147,7 +147,7 @@ plt.title('各地铁线路出入站人数')
 plt.show()
 
 
-# In[ ]:
+# In[13]:
 
 
 #入站比例饼图
@@ -155,7 +155,7 @@ plt.axes(aspect='equal')
 plt.pie(y_in,labels=company_in,shadow=True,autopct='%1.2f%%')
 
 
-# In[ ]:
+# In[14]:
 
 
 #出站比例饼图
@@ -163,21 +163,21 @@ plt.axes(aspect='equal')
 plt.pie(y_out,labels=company_out,shadow=True,autopct='%1.2f%%')
 
 
-# In[ ]:
+# In[15]:
 
 
 y2=metro_in.groupby('period')['card_no'].describe()['count'].to_frame('Ridership')
 y2
 
 
-# In[ ]:
+# In[16]:
 
 
 #总入站人数时间分布图
 plt.plot(y2)
 
 
-# In[ ]:
+# In[17]:
 
 
 #分线路入站人数时间分布图
@@ -186,7 +186,7 @@ y3.reset_index(inplace = True)
 y3
 
 
-# In[ ]:
+# In[18]:
 
 
 l1=y3[y3.company_name=='地铁一号线']
@@ -225,32 +225,32 @@ plt.legend(['line1','line2','line3','line4','line5','line7','line9','line11'],lo
 plt.show()
 
 
-# In[ ]:
+# In[19]:
 
 
 y4=metro_in.groupby('station')['card_no'].describe()['count'].to_frame('Ridership')
 y5=metro_in.groupby(['station','period'])['card_no'].describe()['count'].to_frame('Ridership')
 
 
-# In[ ]:
+# In[20]:
 
 
 y4
 
 
-# In[447]:
+# In[21]:
 
 
 y5
 
 
-# In[ ]:
+# In[22]:
 
 
 jingwei.head()
 
 
-# In[ ]:
+# In[23]:
 
 
 y6=y4.join(jingwei.set_index('station'),on='station')
@@ -258,7 +258,7 @@ y6=y4.join(jingwei.set_index('station'),on='station')
 y6.dropna(inplace=True)
 
 
-# In[ ]:
+# In[24]:
 
 
 ruzhan=np.array(y6['Ridership'],dtype=np.float)
@@ -268,21 +268,82 @@ data2=[[lat1[i],lon1[i],ruzhan[i]] for i in range(len(lat1))]
 data2
 
 
-# In[ ]:
+# In[60]:
 
 
-m = folium.Map([22.5,114.], tiles='stamentoner', control_scale = True,zoom_start=11)
-HeatMap(data2).add_to(m)
-m.save(os.path.join(r'C:\Users\ASUS\Desktop\o2odata\python', 'Heatmap_进站.html'))
-m
+m1 = folium.Map([22.5,114.], tiles='http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',attr='AutoNavi',zoom_start=11,control_scale = True)
+m1.add_child(HeatMap(data2, radius=12, gradient={.4:'blue',.65:'yellow',1:'red'}))
+m1.save(os.path.join(r'C:\Users\ASUS\Desktop\o2odata\python', 'Heatmap_1.html'))
+m1
 
 
-# In[451]:
+# In[26]:
 
 
 y5=pd.DataFrame(y5)
 y5
 
 
-# In[455]:
+# In[27]:
+
+
+#data3=[[lat1[i],lon1[i],ruzhan[i]] for i in range(len(lat1))]
+
+
+# In[28]:
+
+
+#m2 = folium.Map([22.5,114.], tiles='stamentoner', control_scale = True，zoom_start=11)
+#HeatMap(data3).add_to(m2)
+#m2.save(os.path.join(r'C:\Users\ASUS\Desktop\metro\python', 'Heatmap_进站.html'))
+#m2
+
+
+# In[29]:
+
+
+#trans=subway[(subway['conn_mark']==1)&(subway['date_hour']<12)&(subway['date_hour']>=6)]
+#bus=subway[(subway['date_hour']<12)&(subway['date_hour']>=6)]
+#transfer=bus[bus["card_no"].isin(trans.card_no)]
+#transfer=transfer[(transfer['deal_money']!=0)&(transfer['deal_type']=='地铁出站')]
+#transfer['station']=transfer[~(transfer['station'].isin(1))]
+
+
+# In[30]:
+
+
+#transrider=transfer.groupby('station')['card_no'].describe()['count'].to_frame('transrider')
+#transrider
+
+
+# In[31]:
+
+
+#x=pd.merge(jingwei,transrider,left_index=True, right_index=True,on='station',how='left')
+#x
+
+
+# In[32]:
+
+
+#lon=np.array(jingwei['lon'][0:len(jingwei)])
+#lat=np.array(jingwei['lat'][0:len(jingwei)])
+
+
+# In[33]:
+
+
+#transrider=transrider
+#trans=np.array(transrider['transrider'],dtype=np.float)
+#data1 = [[lat[i],lon[i],trans[i]] for i in range(len(jingwei))]
+
+
+# In[34]:
+
+
+#m = folium.Map([22.5,114.], tiles='stamentoner', zoom_start=11)
+#HeatMap(data1).add_to(m)
+#m.save(os.path.join(r'C:\Users\ASUS\Desktop\metro\python', 'Heatmap.html'))
+#m.save('Heatmap_profit_zonghe.html')#存放路径记得改
+#m
 
